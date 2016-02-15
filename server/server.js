@@ -1,6 +1,9 @@
 var http = require('http');
 var url = require('url');
 var ratesService = require('./ratesService');
+var getIp = require('./getIp');
+
+var ip = getIp();
 
 var startTime = new Date();
 
@@ -113,10 +116,9 @@ function getUrlParam(reqUrl, param) {
 }
 
 function startServer(port) {
-    server.listen(port, "localhost");
+    server.listen(port, ip);
     server.setTimeout(0);
-
-    console.log('Server running at http://localhost:' + port);
+    console.log('Server running at http://' + ip + ':' + port);
 }
 
 module.exports = {
