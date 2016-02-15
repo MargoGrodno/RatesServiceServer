@@ -10,5 +10,11 @@
   "license": "ISC",
   "devDependencies": {
     "soap": "^0.11.4"
+  },
+  "dependencies": {
+    "soap": "^0.12.0"
+    },
+  "engines": {
+    "node": "4.1.0"
   }
 }
