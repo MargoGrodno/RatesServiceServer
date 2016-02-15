@@ -2,6 +2,8 @@ var http = require('http');
 var url = require('url');
 var ratesService = require('./ratesService');
 
+var startTime = new Date();
+
 var server = http.createServer(function(req, res) {
     console.log('method: ' + req.method + ", " + req.url);
 
@@ -53,6 +55,14 @@ function minusDays(dateIncome, days) {
 }
 
 function getHandler(req, res, continueWith) {
+    if (req.url == "/") {
+        continueWith({
+            status: "Running",
+            startTime: startTime
+        });
+        return;
+    }
+
     var urlMethod = getUrlParam(req.url, "method");
 
     if (urlMethod == "tableRates") {
