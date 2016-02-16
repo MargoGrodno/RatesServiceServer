@@ -116,7 +116,7 @@ function getUrlParam(reqUrl, param) {
 }
 
 function startServer(port) {
-    server.listen(port, ip);
+    server.listen(port);
     server.setTimeout(0);
     console.log('Server running at http://' + ip + ':' + port);
 }
