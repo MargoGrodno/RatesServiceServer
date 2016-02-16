@@ -62,7 +62,6 @@ function getHandler(req, res, continueWith) {
         });
         return;
     }
-
     var urlMethod = getUrlParam(req.url, "method");
 
     if (urlMethod == "tableRates") {
