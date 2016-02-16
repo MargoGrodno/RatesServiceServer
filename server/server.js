@@ -1,7 +1,9 @@
 var http = require('http');
 var url = require('url');
 var ratesService = require('./ratesService');
+var getIp = require('./getIp');
 
+var ip = getIp();
 
 var startTime = new Date();
 
