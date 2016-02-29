@@ -43,17 +43,6 @@ function responseWithError(response, err, statusCode) {
     response.end();
 }
 
-function minusDays(dateIncome, days) {
-    var date = new Date(dateIncome);
-    if (isNaN(date.valueOf())) {
-        console.log(dateIncome + " is not a Date");
-        return;
-    }
-    var prevDate = new Date(date);
-    prevDate.setDate(date.getDate() - parseInt(days, 10));
-    return prevDate;
-}
-
 function getHandler(req, res, continueWith) {
     if (req.url == "/") {
         continueWith({
@@ -65,50 +54,55 @@ function getHandler(req, res, continueWith) {
     var urlMethod = getUrlParam(req.url, "method");
 
     if (urlMethod == "tableRates") {
-        var urlDate = getUrlParam(req.url, "date");
-        var urlPeriod = getUrlParam(req.url, "period");
-        var prevDate = minusDays(urlDate, urlPeriod);
-        getTableRates(urlDate, prevDate, continueWith);
+        var urlDate = getUrlParam(req.url, "date"),
+            urlPeriod = getUrlParam(req.url, "period");
+        var date = dateFromJSON(urlDate);
+        ratesService.getTableRates(date, urlPeriod, continueWith);
         return;
     }
-    continueWith(Error("Unsuported method"), 501);
-}
 
-function getTableRates(date, prevDate, continueWith) {
-    ratesService.getExRatesDaily(date, function(resultPrimary) {
-        ratesService.getExRatesDaily(prevDate, function(resultPrev) {
-            var result = [];
-            var change = 0;
-            for (var i = 0; i < resultPrimary.length; i++) {
-                var abbreviation = resultPrimary[i].Cur_Abbreviation;
-                var rate = resultPrimary[i].Cur_OfficialRate;
+    if (urlMethod == "currencyHistory") {
+        var urlDateFrom = getUrlParam(req.url, "dateFrom"),
+            urlDateTo = getUrlParam(req.url, "dateTo"),
+            urlCurrencyAbb = getUrlParam(req.url, "currencyAbb");
+        var dateFrom = dateFromJSON(urlDateFrom),
+            dateTo = dateFromJSON(urlDateTo);
+        ratesService.getCurrencyHistory(urlCurrencyAbb, dateFrom, dateTo, continueWith);
+        return;
+    }
 
-                var prevRate = resultPrev.filter(function(obj) {
-                    return obj.Cur_Abbreviation == abbreviation;
-                });
-                if(prevRate.length != 0){
-                    change = parseFloat((rate - prevRate[0].Cur_OfficialRate).toFixed(2));   
-                }
-                else {
-                    change = "undef";
-                }
-                
-                result.push({
-                    abbreviation: resultPrimary[i].Cur_Abbreviation,
-                    name: resultPrimary[i].Cur_QuotName,
-                    rate: parseFloat(rate),
-                    change: change
-                });
-            };
-            
-            continueWith(result);
+    if(urlMethod == "currenciesForGraphics"){
+        ratesService.getListCurrencies(function(res){
+            continueWith(res);
         });
-    });
+        return;
+    }
+
+    continueWith(Error("Unsuported method"), 501);
 }
 
 function getUrlParam(reqUrl, param) {
     var parts = url.parse(reqUrl, true);
     return parts.query[param];
+}
+
+//формирует дату из строки, не смещая ее относительно часового пояса машины
+function dateFromJSON(jsonDate) {
+    if (jsonDate instanceof Date) {
+        return jsonDate;
+    }
+
+    var year = parseInt(jsonDate.slice(0, 4));
+    var month = parseInt(jsonDate.slice(5, 7)) - 1;
+    var day = parseInt(jsonDate.slice(8, 10));
+    var date = new Date(year, month, day);
+
+    if (isNaN(date.valueOf())) {
+        console.log(jsonDate + " is not a Date");
+        return;
+    }
+
+    return date;
 }
 
 function startServer(port) {

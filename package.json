@@ -9,11 +9,13 @@
   "author": "Margo_Grodno",
   "license": "ISC",
   "devDependencies": {
+    "promise": "^7.1.1",
     "soap": "^0.11.4"
   },
   "dependencies": {
+    "promise": "^7.1.1",
     "soap": "^0.12.0"
-    },
+  },
   "engines": {
     "node": "4.1.0"
   }
