@@ -1,7 +1,8 @@
 var nbClient = require('./nbrbClient');
+var dateUtils = require('./dateUtils');
 
 function getTableRates(date, urlPeriod, continueWith) {
-    var prevDate = plusDays(date, -1 * urlPeriod);
+    var prevDate = dateUtils.plusDays(date, -1 * urlPeriod);
     nbClient.getExRatesDaily(date, function(ratesPrimary) { // переписать на параллельное выполнение
         nbClient.getExRatesDaily(prevDate, function(ratesBefore) {
             var result = [];

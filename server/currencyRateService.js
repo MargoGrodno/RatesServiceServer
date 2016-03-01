@@ -1,5 +1,6 @@
 var nbClient = require('./nbrbClient');
 var currenciesHistory = require('./currenciesHistory');
+var dateUtils = require('./dateUtils');
 
 function getCurrencyHistory(currAbb, dateFrom, dateTo, continueWith) {
     demountById(currAbb, dateFrom, dateTo, function(demountedById) {
@@ -69,8 +70,8 @@ function demountById(curAbb, fromDate, toDate, continueWith) {
                     var partEnd = new Date(); //создавать именно текущую в Беларуси дату
                 }
 
-                if (isInside(partStart, partEnd, fromDate)) {
-                    if (isInside(partStart, partEnd, toDate)) {
+                if (dateUtils.isInside(partStart, partEnd, fromDate)) {
+                    if (dateUtils.isInside(partStart, partEnd, toDate)) {
                         result.push({
                             id: partId,
                             fromDate: fromDate,
@@ -84,7 +85,7 @@ function demountById(curAbb, fromDate, toDate, continueWith) {
                         fromDate: fromDate,
                         toDate: partEnd
                     });
-                    fromDate = plusDays(partEnd, 1);
+                    fromDate = dateUtils.plusDays(partEnd, 1);
                 }
             };
             continueWith(result);
@@ -95,18 +96,18 @@ function demountByPeriod(demById, period) {
 
     function demount(fromDate, toDate, period) {
         var result = [];
-        var diff = diffDays(fromDate, toDate);
+        var diff = dateUtils.diffDays(fromDate, toDate);
         while (diff > period - 1) {
-            tempToDate = plusDays(fromDate, period - 1);
+            tempToDate = dateUtils.plusDays(fromDate, period - 1);
             if (diff == period) {
-                tempToDate = plusDays(fromDate, period - 2);
+                tempToDate = dateUtils.plusDays(fromDate, period - 2);
             }
             result.push({
                 from: fromDate,
                 to: tempToDate
             });
-            fromDate = plusDays(tempToDate, 1);
-            diff = diffDays(fromDate, toDate);
+            fromDate = dateUtils.plusDays(tempToDate, 1);
+            diff = dateUtils.diffDays(fromDate, toDate);
         }
         result.push({
             from: fromDate,
@@ -130,26 +131,6 @@ function demountByPeriod(demById, period) {
     return result;
 }
 
-function diffDays(lastDay, firstDay) {
-    var milisecDiff = firstDay.getTime() - lastDay.getTime();
-    return Math.ceil(milisecDiff / (1000 * 3600 * 24));
-}
-
-function plusDays(date, days) {
-    var prevDate = new Date(date);
-    prevDate.setDate(date.getDate() + parseInt(days, 10));
-    return prevDate;
-}
-
-function isInside(from, to, date) {
-    if (date.getTime() < from.getTime()) {
-        return false;
-    }
-    if (date.getTime() > to.getTime()) {
-        return false;
-    }
-    return true;
-}
 
 module.exports = {
     getCurrencyHistory: getCurrencyHistory
