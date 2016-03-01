@@ -54,12 +54,18 @@ function demountById(curAbb, fromDate, toDate, continueWith) {
             })[0].history;
 
             var curGlobalStart = currencyHistory[0].startDate;
-            if (fromDate.getTime() < curGlobalStart.getTime()) {
-                var dd = curGlobalStart.getDate();
-                var mm = curGlobalStart.getMonth() + 1; //January is 0!
-                var yyyy = curGlobalStart.getFullYear();
-                result.push({ error: curAbb + " rate is only available from " + yyyy + '-' + mm + '-' + dd });
-                fromDate = curGlobalStart;
+            var dateInBelarus = dateUtils.dateInBelarus();
+            var isCorrectDateFrom = dateUtils.isInside(curGlobalStart, dateInBelarus, fromDate);
+            var isCorrectDateTo = dateUtils.isInside(curGlobalStart, dateInBelarus, toDate);
+            if (!(isCorrectDateFrom && isCorrectDateTo)) {
+                result.push({
+                    error: curAbb +
+                        " rate is only available from " + 
+                        dateUtils.makeDateYYYYMMDD(curGlobalStart) +
+                        " to " + dateUtils.makeDateYYYYMMDD(dateInBelarus)
+                });
+                fromDate = !isCorrectDateFrom ? curGlobalStart : fromDate;
+                toDate = !isCorrectDateTo ? dateInBelarus : toDate;
             }
 
             for (var i = 0; i < currencyHistory.length; i++) {

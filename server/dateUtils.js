@@ -19,9 +19,38 @@ function isInside(from, to, date) {
     return true;
 }
 
+function dateInBelarus() {
+    var date = new Date();
+    date.setMinutes(date.getMinutes() + date.getTimezoneOffset() + 3 * 60);
+    return date;
+}
+
+function makeDateYYYYMMDD(date) {
+    var dd = date.getDate();
+    var mm = date.getMonth() + 1; //January is 0!
+    var yyyy = date.getFullYear();
+
+    if (dd < 10) {
+        dd = '0' + dd
+    }
+    if (mm < 10) {
+        mm = '0' + mm
+    }
+    return yyyy + '-' + mm + '-' + dd;
+}
+
+function fromJSON(dateJSON){
+    var date = new Date(dateJSON)
+    date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
+    return date;
+}
+
 
 module.exports = {
     diffDays: diffDays,
     plusDays: plusDays,
     isInside: isInside,
+    dateInBelarus: dateInBelarus,
+    makeDateYYYYMMDD: makeDateYYYYMMDD,
+    fromJSON: fromJSON
 };

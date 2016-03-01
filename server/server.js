@@ -3,6 +3,7 @@ var url = require('url');
 var listCurrenciesService = require('./listCurrenciesService');
 var currencyRateService = require('./currencyRateService');
 var tableRateService = require('./tableRateService');
+var dateUtils = require('./dateUtils');
 
 var startTime = new Date();
 
@@ -60,7 +61,7 @@ function getHandler(req, res, continueWith) {
     if (urlMethod == "tableRates") {
         var urlDate = getUrlParam(req.url, "date"),
             urlPeriod = getUrlParam(req.url, "period");
-        var date = new Date(urlDate);
+        var date = dateUtils.fromJSON(urlDate);
         tableRateService.getTableRates(date, urlPeriod, continueWith);
         return;
     }
@@ -69,8 +70,8 @@ function getHandler(req, res, continueWith) {
         var urlDateFrom = getUrlParam(req.url, "dateFrom"),
             urlDateTo = getUrlParam(req.url, "dateTo"),
             urlCurrencyAbb = getUrlParam(req.url, "currencyAbb");
-        var dateFrom = new Date(urlDateFrom),
-            dateTo = new Date(urlDateTo);
+        var dateFrom = dateUtils.fromJSON(urlDateFrom),
+            dateTo = dateUtils.fromJSON(urlDateTo);
         currencyRateService.getCurrencyHistory(urlCurrencyAbb, dateFrom, dateTo, continueWith);
         return;
     }
