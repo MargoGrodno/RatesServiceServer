@@ -34,7 +34,7 @@ function getCurrencyHistory(currAbb, dateFrom, dateTo, continueWith) {
                 for (var i = 0; i < res.length; i++) {
                     for (var j = 0; j < res[i].length; j++) {
                         result.data.push({
-                            date: res[i][j].Date,
+                            date: res[i][j].Date.slice(0,10),
                             rate: parseFloat(res[i][j].Cur_OfficialRate)
                         });
                     };
