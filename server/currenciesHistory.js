@@ -74,7 +74,6 @@ function plusDays(date, days) {
     return prevDate;
 }
 
-
 module.exports = {
     history: currenciesHistory
 };

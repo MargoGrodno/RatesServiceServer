@@ -1,6 +1,8 @@
 var http = require('http');
 var url = require('url');
-var ratesService = require('./ratesService');
+var listCurrenciesService = require('./listCurrenciesService');
+var currencyRateService = require('./currencyRateService');
+var tableRateService = require('./tableRateService');
 
 var startTime = new Date();
 
@@ -44,6 +46,7 @@ function responseWithError(response, err, statusCode) {
 }
 
 function getHandler(req, res, continueWith) {
+    
     if (req.url == "/") {
         continueWith({
             status: "Running",
@@ -51,13 +54,14 @@ function getHandler(req, res, continueWith) {
         });
         return;
     }
+
     var urlMethod = getUrlParam(req.url, "method");
 
     if (urlMethod == "tableRates") {
         var urlDate = getUrlParam(req.url, "date"),
             urlPeriod = getUrlParam(req.url, "period");
-        var date = dateFromJSON(urlDate);
-        ratesService.getTableRates(date, urlPeriod, continueWith);
+        var date = new Date(urlDate);
+        tableRateService.getTableRates(date, urlPeriod, continueWith);
         return;
     }
 
@@ -65,14 +69,14 @@ function getHandler(req, res, continueWith) {
         var urlDateFrom = getUrlParam(req.url, "dateFrom"),
             urlDateTo = getUrlParam(req.url, "dateTo"),
             urlCurrencyAbb = getUrlParam(req.url, "currencyAbb");
-        var dateFrom = dateFromJSON(urlDateFrom),
-            dateTo = dateFromJSON(urlDateTo);
-        ratesService.getCurrencyHistory(urlCurrencyAbb, dateFrom, dateTo, continueWith);
+        var dateFrom = new Date(urlDateFrom),
+            dateTo = new Date(urlDateTo);
+        currencyRateService.getCurrencyHistory(urlCurrencyAbb, dateFrom, dateTo, continueWith);
         return;
     }
 
     if(urlMethod == "currenciesForGraphics"){
-        ratesService.getListCurrencies(function(res){
+        listCurrenciesService.getListCurrencies(function(res){
             continueWith(res);
         });
         return;
@@ -84,25 +88,6 @@ function getHandler(req, res, continueWith) {
 function getUrlParam(reqUrl, param) {
     var parts = url.parse(reqUrl, true);
     return parts.query[param];
-}
-
-//формирует дату из строки, не смещая ее относительно часового пояса машины
-function dateFromJSON(jsonDate) {
-    if (jsonDate instanceof Date) {
-        return jsonDate;
-    }
-
-    var year = parseInt(jsonDate.slice(0, 4));
-    var month = parseInt(jsonDate.slice(5, 7)) - 1;
-    var day = parseInt(jsonDate.slice(8, 10));
-    var date = new Date(year, month, day);
-
-    if (isNaN(date.valueOf())) {
-        console.log(jsonDate + " is not a Date");
-        return;
-    }
-
-    return date;
 }
 
 function startServer(port) {

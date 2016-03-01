@@ -1,52 +1,5 @@
-var Promise = require('promise');
 var nbClient = require('./nbrbClient');
 var currenciesHistory = require('./currenciesHistory');
-
-function getListCurrencies(continueWith) {
-    currenciesHistory.history
-        .then(function(history) {
-            var listCurrencies = [];
-
-            history.forEach(function(currencyHistory) {
-                listCurrencies.push(currencyHistory.abbreviation);
-            });
-
-            continueWith(listCurrencies);
-        });
-};
-
-function getTableRates(date, urlPeriod, continueWith) {
-    var prevDate = plusDays(date, -1 * urlPeriod);
-    nbClient.getExRatesDaily(date, function(ratesPrimary) { // переписать на параллельное выполнение
-        nbClient.getExRatesDaily(prevDate, function(ratesBefore) {
-            var result = [];
-            var change = 0;
-            for (var i = 0; i < ratesPrimary.length; i++) {
-                var abbreviation = ratesPrimary[i].Cur_Abbreviation;
-                var ratePrimary = ratesPrimary[i].Cur_OfficialRate;
-
-                var beforeRate = ratesBefore.filter(function(obj) {
-                    return obj.Cur_Abbreviation == abbreviation;
-                });
-
-                if (beforeRate.length > 0) {
-                    change = parseFloat((ratePrimary - beforeRate[0].Cur_OfficialRate).toFixed(2));
-                } else {
-                    change = "undef";
-                }
-
-                result.push({
-                    abbreviation: abbreviation,
-                    name: ratesPrimary[i].Cur_QuotName,
-                    rate: parseFloat(ratePrimary),
-                    change: change
-                });
-            };
-
-            continueWith(result);
-        });
-    });
-}
 
 function getCurrencyHistory(currAbb, dateFrom, dateTo, continueWith) {
     demountById(currAbb, dateFrom, dateTo, function(demountedById) {
@@ -88,7 +41,6 @@ function getCurrencyHistory(currAbb, dateFrom, dateTo, continueWith) {
                 continueWith(result);
             });
     });
-
 }
 
 function demountById(curAbb, fromDate, toDate, continueWith) {
@@ -199,27 +151,6 @@ function isInside(from, to, date) {
     return true;
 }
 
-//формирует дату из строки, не смещая ее относительно часового пояса машины
-function dateFromJSON(jsonDate) {
-    if (jsonDate instanceof Date) {
-        return jsonDate;
-    }
-
-    var year = parseInt(jsonDate.slice(0, 4));
-    var month = parseInt(jsonDate.slice(5, 7)) - 1;
-    var day = parseInt(jsonDate.slice(8, 10));
-    var date = new Date(year, month, day);
-
-    if (isNaN(date.valueOf())) {
-        console.log(jsonDate + " is not a Date");
-        return;
-    }
-    return date;
-}
-
-
 module.exports = {
-    getTableRates: getTableRates,
-    getCurrencyHistory: getCurrencyHistory,
-    getListCurrencies: getListCurrencies
+    getCurrencyHistory: getCurrencyHistory
 };

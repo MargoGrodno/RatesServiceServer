@@ -98,12 +98,7 @@ function getCurrenciesRef(periodicity, continueWith) {
         })
 };
 
-function makeDateYYYYMMDD(dateIncome) {
-    if (!(dateIncome instanceof Date)) {
-        var date = dateFromJSON(dateIncome);
-    } else {
-        var date = dateIncome;
-    }
+function makeDateYYYYMMDD(date) {
     var dd = date.getDate();
     var mm = date.getMonth() + 1; //January is 0!
     var yyyy = date.getFullYear();
